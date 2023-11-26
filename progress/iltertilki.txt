@@ -1,0 +1,1 @@
+Setup the development environment, practiced some basic sql queries with the database. Developed a basic UI for the app.
