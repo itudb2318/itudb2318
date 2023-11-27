@@ -4,7 +4,6 @@ import pymysql
 conn = pymysql.connect(user='root', password='', host='localhost', database='banking')
 
 amount = input("Enter amount to UPDATE : ")
-print("The entered CRN is:", amount)
 
 try:
     with conn.cursor() as cursor:
