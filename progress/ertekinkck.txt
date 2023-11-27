@@ -1,1 +1,2 @@
 Created organization, created progress file and ertekinkck.txt file.
+Created basic CRUD templates related to database. (To be improved later)
