@@ -12,7 +12,7 @@ def get_data():
     connection = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='05542575141',
+        password='pw',
         database='banking'
     )
 
