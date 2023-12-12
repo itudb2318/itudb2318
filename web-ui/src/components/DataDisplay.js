@@ -7,7 +7,7 @@ const DataDisplay = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    // Make a request to the Flask backend
+    // get completedacct table data from flask endpoint
     axios.get('http://localhost:5000/api/data/get_completedacct')
       .then(response => {
         setData(response.data);
@@ -30,7 +30,6 @@ const DataDisplay = () => {
             <span>{item.year}</span>
             <span>{item.month}</span>
             <span>{item.day}</span>
-            {/* Add more spans for additional columns */}
           </li>
         ))}
       </ul>
