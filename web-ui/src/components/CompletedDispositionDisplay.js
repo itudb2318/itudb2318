@@ -8,7 +8,7 @@ const DataDisplay = () => {
 
   useEffect(() => {
     // Make a request to the Flask backend
-    axios.get('http://localhost:5000/api/data/get_completedacct')
+    axios.get('http://localhost:5000/api/data/get_completeddisposition')
       .then(response => {
         setData(response.data);
       })

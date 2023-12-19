@@ -18,31 +18,31 @@ db_config = {
 def get_completedacct():
     return get_data_from_table('completedacct')    
 
-@app.route('/api/data/completedcard', methods=['GET'])
+@app.route('/api/data/get_completedcard', methods=['GET'])
 def get_completedcard():
     return get_data_from_table('completedcard')
 
-@app.route('/api/data/completedclient', methods=['GET'])
+@app.route('/api/data/get_completedclient', methods=['GET'])
 def get_completedclient():
     return get_data_from_table('completedclient')
 
-@app.route('/api/data/completeddisposition', methods=['GET'])
+@app.route('/api/data/get_completeddisposition', methods=['GET'])
 def get_completeddisposition():
     return get_data_from_table('completeddisposition')
 
-@app.route('/api/data/completeddistrict', methods=['GET'])
+@app.route('/api/data/get_completeddistrict', methods=['GET'])
 def get_completeddistrict():
     return get_data_from_table('completeddistrict')
 
-@app.route('/api/data/completedloan', methods=['GET'])
+@app.route('/api/data/get_completedloan', methods=['GET'])
 def get_completedloan2():
     return get_data_from_table('completedloan')
 
-@app.route('/api/data/completedtrans', methods=['GET'])
+@app.route('/api/data/get_completedtrans', methods=['GET'])
 def get_completedtrans():
     return get_data_from_table('completedtrans')
 
-@app.route('/api/data/crm_events', methods=['GET'])
+@app.route('/api/data/get_crm_events', methods=['GET'])
 def get_crm_events():
     return get_data_from_table('crm_events')
 
