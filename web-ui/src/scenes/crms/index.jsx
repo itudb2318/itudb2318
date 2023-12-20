@@ -4,10 +4,26 @@ import { tokens } from "../../theme";
 import { mockDataComplaints } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const Crms = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    // Make a request to the Flask backend
+    axios
+      .get("http://localhost:5000/api/data/get_crm_events")
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
 
   const columns = [
     { field: "id", headerName: "ID", flex: 0.5 },

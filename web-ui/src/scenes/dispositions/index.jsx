@@ -4,10 +4,26 @@ import { tokens } from "../../theme";
 import { mockDataDispositions } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const Dispositions = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    // Make a request to the Flask backend
+    axios
+      .get("http://localhost:5000/api/data/get_completeddisposition")
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
 
   const columns = [
     { field: "disp_id", headerName: "Disposition ID", flex: 0.5 },
@@ -64,7 +80,7 @@ const Dispositions = () => {
         }}
       >
         <DataGrid
-          rows={mockDataDispositions}
+          rows={data}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
           getRowId={(row) => row.disp_id}

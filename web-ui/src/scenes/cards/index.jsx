@@ -1,13 +1,28 @@
 import { Box } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataCards } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const Cards = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    // Make a request to the Flask backend
+    axios
+      .get("http://localhost:5000/api/data/get_completedcard")
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
 
   const columns = [
     { field: "card_id", headerName: "Card ID", flex: 0.5 },
@@ -81,7 +96,7 @@ const Cards = () => {
         }}
       >
         <DataGrid
-          rows={mockDataCards}
+          rows={data}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
           getRowId={(row) => row.card_id}
