@@ -2,6 +2,8 @@ from flask import Flask, jsonify
 from flask_cors import CORS  # Cross-Origin Resource Sharing
 import mysql.connector
 
+from delete import delete_item
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})    
@@ -46,6 +48,10 @@ def get_completedtrans():
 def get_crm_events():
     return get_data_from_table('crm_events')
 
+@app.route('/delete/<string:table_name>/<int:item_id>', methods=['DELETE'])
+def delete(table_name, item_id):
+    delete_item(table_name, item_id)
+
 
 def get_data_from_table(table_name):
     #connecting to MySQL database
@@ -69,16 +75,6 @@ def get_data_from_table(table_name):
 
     return jsonify(result)
     
-
-@app.route('/api/data', methods=['GET'])
-def get_data():
-    # Connect to MySQL database
-    connection = mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='pw',
-        database='banking'
-    )
 
 
 if __name__ == '__main__':
