@@ -56,11 +56,6 @@ const Accounts = () => {
       headerName: "Day",
       flex: 1,
     },
-    {
-      field: "date",
-      headerName: "Date",
-      flex: 1,
-    },
   ];
 
   return (
