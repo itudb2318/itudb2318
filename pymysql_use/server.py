@@ -50,7 +50,7 @@ def get_crm_events():
 def get_data_from_table(table_name):
     #connecting to MySQL database
     connection = mysql.connector.connect(**db_config)
-    cursor = connection.cursor()
+    cursor = connection.cursor(buffered=True)
 
     #querying table
     query = f"SELECT * FROM {table_name}"
