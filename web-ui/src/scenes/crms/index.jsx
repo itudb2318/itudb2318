@@ -26,9 +26,8 @@ const Crms = () => {
   }, []);
 
   const columns = [
-    { field: "id", headerName: "ID", flex: 0.5 },
     {
-      field: "date_recevied",
+      field: "date_received",
       headerName: "Date Recevied",
       flex: 1,
     },
@@ -137,7 +136,7 @@ const Crms = () => {
         }}
       >
         <DataGrid
-          rows={mockDataComplaints}
+          rows={data}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
           getRowId={(row) => row.id}
