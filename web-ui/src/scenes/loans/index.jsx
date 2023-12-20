@@ -67,11 +67,6 @@ const Loans = () => {
       flex: 1,
     },
     {
-      field: "date",
-      headerName: "Date",
-      flex: 1,
-    },
-    {
       field: "fulldate",
       headerName: "Full Date",
       flex: 1,

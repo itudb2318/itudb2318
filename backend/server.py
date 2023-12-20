@@ -53,7 +53,7 @@ def get_data_from_table(table_name):
     cursor = connection.cursor(buffered=True)
 
     #querying table
-    query = f"SELECT * FROM {table_name}"
+    query = f"SELECT * FROM {table_name} LIMIT 3000"
     cursor.execute(query)
 
     #fetching all rows
