@@ -1,9 +1,9 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS  # Cross-Origin Resource Sharing
 import mysql.connector
-
 from delete import delete_item
-
+from update import update_data
+from create import insert_data
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})    
@@ -11,7 +11,7 @@ CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '05542575141',
+    'password': 'ertekin.12',
     'database': 'banking'
 }
 
@@ -51,6 +51,18 @@ def get_crm_events():
 @app.route('/delete/<string:table_name>/<int:item_id>', methods=['DELETE'])
 def delete(table_name, item_id):
     delete_item(table_name, item_id)
+    
+@app.route('/update/<string:table_name>/<int:item_id>', methods=['PUT'])
+def update(table_name, item_id):
+    data = request.get_json()
+    update_data(table_name, item_id, data, db_config)
+    return "Data updated successfully"
+    
+@app.route('/insert/<string:table_name>', methods=['POST'])
+def insert(table_name):
+    data = request.get_json()
+    insert_data(table_name, data, db_config)
+    return 'Data inserted successfully!'
 
 
 def get_data_from_table(table_name):

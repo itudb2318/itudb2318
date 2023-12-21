@@ -1,26 +1,17 @@
-import pymysql
+import mysql.connector
+import json
 
-connection = pymysql.connect(user='root', password='', host='localhost', database='banking')
+def insert_data(table_name, data, db_config):
+    connection = mysql.connector.connect(**db_config)
+    cursor = connection.cursor()
 
-placeholder = ("loan_id", "account_id", "amount", "duration", "payments", "status", "year", "month", "day", "fulldate", "location", "purpose")
+    columns = ', '.join(data.keys())
+    values = ', '.join(['%s' for _ in data.values()])
 
-values = []
+    query = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+    cursor.execute(query, tuple(data.values()))
 
-for i in range (12):
-    val = input(f"Enter values for {placeholder[i]} : ")
-    values.append(val)
-    
-try:
-    with connection.cursor() as cursor:
-        
-        sql = "INSERT INTO completedloan (loan_id, account_id, amount, duration, payments, status, year, month, day, fulldate, location, purpose) VALUES (%d, %s, %d, %d, %d, %s, %s, %d, %d, %s, %d, %s)"
+    connection.commit()
 
-        cursor.execute(sql, values)
-
-        connection.commit()
-        
-        print(f"Number of rows inserted: {cursor.rowcount}")
-
-finally:
+    cursor.close()
     connection.close()
-

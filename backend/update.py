@@ -1,21 +1,16 @@
-import pymysql
+import json
+import mysql.connector
 
+def update_data(table_name, item_id, data, db_config):
+    connection = mysql.connector.connect(**db_config)
+    cursor = connection.cursor()
 
-conn = pymysql.connect(user='root', password='', host='localhost', database='banking')
+    set_clause = ', '.join([f"{key}=%s" for key in data.keys()])
+    query = f"UPDATE {table_name} SET {set_clause} WHERE district_id=%s"
 
-amount = input("Enter amount to UPDATE : ")
+    cursor.execute(query, tuple(data.values()) + (item_id,))
 
-try:
-    with conn.cursor() as cursor:
-        
-        sql = "UPDATE completedloan SET amount = {amount} WHERE amount < 7000"
-        
-        cursor.execute(sql)
-
-        conn.commit()
-
-        print(f"Number of rows updated: {cursor.rowcount}.")
-
-finally:
-    conn.close()
-
+    connection.commit()
+    
+    cursor.close()
+    connection.close()
