@@ -1,4 +1,9 @@
 Created organization, created progress file and ertekinkck.txt file.
 Created basic CRUD templates related to database. (To be improved later)
-
 Deleted unnecessary files.
+Added mysql datas as zip file.
+Created Update and Create functions for backend.
+Update function generalized and mase corrections in it.
+Added proper routes into the server.py
+
+
