@@ -52,7 +52,7 @@ def get_crm_events():
 def delete(table_name, item_id):
     delete_item(table_name, item_id)
     
-@app.route('/update/<string:table_name>/<int:item_id>', methods=['PUT'])
+@app.route('/update/<string:table_name>/<string:item_id>', methods=['PUT'])
 def update(table_name, item_id):
     data = request.get_json()
     update_data(table_name, item_id, data, db_config)
