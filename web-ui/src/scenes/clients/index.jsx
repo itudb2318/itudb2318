@@ -136,6 +136,7 @@ const Clients = () => {
     { field: "sex", headerName: "Sex", flex: 1, editable: true },
     { field: "fulldate", headerName: "Full Date", flex: 1, editable: true },
     { field: "month", headerName: "Month", flex: 1, editable: true },
+    { field: "day", headerName: "Day", flex: 1, editable: true },
     { field: "year", headerName: "Year", flex: 1, editable: true },
     { field: "age", headerName: "Age", flex: 1, editable: true },
     { field: "social", headerName: "Social", flex: 1, editable: true },
