@@ -1,10 +1,9 @@
-import { useState } from "react";
+import React, { useState, useContext } from "react";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import "react-pro-sidebar/dist/css/styles.css";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
-import { tokens } from "../../theme";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import { ColorModeContext, tokens } from "../../theme";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import LocationCityOutlinedIcon from "@mui/icons-material/LocationCityOutlined";
 import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
@@ -14,6 +13,8 @@ import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlin
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -21,7 +22,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
   return (
     <MenuItem
       active={selected === title}
-      style={{ color: colors.grey[100] }}
+      style={{ color: colors.grey[100], marginBottom: "5px" }}
       onClick={() => setSelected(title)}
       icon={icon}
     >
@@ -34,12 +35,15 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 const Sidebar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const colorMode = useContext(ColorModeContext);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
 
   return (
     <Box
       sx={{
+        display: "flex",
+        flexDirection: "column",
         "& .pro-sidebar-inner": {
           background: `${colors.primary[400]} !important`,
         },
@@ -52,7 +56,6 @@ const Sidebar = () => {
         "& .pro-inner-item:hover": {
           color: `#868dfb !important`,
         },
-
         "& .pro-menu-item.active": {
           color: `6870fa !important`,
         },
@@ -69,62 +72,48 @@ const Sidebar = () => {
             }}
           >
             {!isCollapsed && (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                ml="15px"
-              >
-                <Typography variant="h3" color={colors.grey[100]}>
-                  APP NAME
-                </Typography>
+              <Box display="flex" justifyContent="flex-start" marginLeft={3.2}>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
+                  <Typography
+                    variant="h6"
+                    color={colors.grey[100]}
+                    sx={{ marginLeft: 2 }}
+                  >
+                    Menu
+                  </Typography>
                 </IconButton>
               </Box>
             )}
           </MenuItem>
-
-          {!isCollapsed && (
-            <Box mb="25px">
-              <Box display="flex" justifyContent="center" alignItems="center">
-                <img
-                  alt="profile-user"
-                  width="100px"
-                  height="100px"
-                  src={`../../assets/user.png`}
-                  style={{ cursor: "pointer", borderRadius: "50%" }}
-                />
-              </Box>
-              <Box textAlign="center">
+          <Box
+            display="flex"
+            flexDirection="column"
+            paddingLeft={isCollapsed ? undefined : "10%"}
+          >
+            <MenuItem>
+              <IconButton
+                style={{ color: colors.grey[100] }}
+                onClick={colorMode.toggleColorMode}
+              >
+                {theme.palette.mode === "dark" ? (
+                  <DarkModeOutlinedIcon />
+                ) : (
+                  <LightModeOutlinedIcon />
+                )}
                 <Typography
-                  variant="h2"
+                  variant="h6"
                   color={colors.grey[100]}
-                  fontWeight="bold"
-                  sx={{ m: "10px 0 0 0" }}
+                  sx={{ marginLeft: 2 }}
                 >
-                  Ilter Tilki
+                  Switch Mode
                 </Typography>
-                <Typography variant="h5" color={colors.greenAccent[500]}>
-                  {" "}
-                  Admin
-                </Typography>
-              </Box>
-            </Box>
-          )}
-          {/* Menu Items */}
-          <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-            <Item
-              title="Home Page"
-              to="/"
-              icon={<HomeOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+              </IconButton>
+            </MenuItem>
             <Typography
               variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
+              sx={{ marginLeft: 3 }}
+              color={colors.grey[500]}
             >
               Tables
             </Typography>
