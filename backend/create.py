@@ -15,3 +15,5 @@ def insert_data(table_name, data, db_config):
 
     cursor.close()
     connection.close()
+    
+    return "Data inserted successfully" 

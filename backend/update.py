@@ -53,3 +53,5 @@ def update_data(table_name, item_id, data, db_config):
     
     cursor.close()
     connection.close()
+    
+    return "Data updated successfully" 

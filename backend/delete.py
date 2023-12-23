@@ -34,3 +34,5 @@ def delete_item(table_name, item_id, db_config):
     connection.commit()
     cursor.close()
     connection.close()
+
+    return "Data deleted successfully"

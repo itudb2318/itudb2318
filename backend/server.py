@@ -48,21 +48,22 @@ def get_completedtrans():
 def get_crm_events():
     return get_data_from_table('crm_events')
 
-@app.route('/delete/<string:table_name>/<int:item_id>', methods=['DELETE'])
+@app.route('/delete/<string:table_name>/<item_id>', methods=['DELETE'])
 def delete(table_name, item_id):
-    delete_item(table_name, item_id)
-    
-@app.route('/update/<string:table_name>/<string:item_id>', methods=['PUT'])
+    msg = delete_item(table_name, item_id, db_config)
+    return msg
+
+@app.route('/update/<string:table_name>/<item_id>', methods=['PUT'])
 def update(table_name, item_id):
     data = request.get_json()
-    update_data(table_name, item_id, data, db_config)
-    return "Data updated successfully"
+    msg = update_data(table_name, item_id, data, db_config)
+    return msg
     
 @app.route('/insert/<string:table_name>', methods=['POST'])
 def insert(table_name):
     data = request.get_json()
-    insert_data(table_name, data, db_config)
-    return 'Data inserted successfully!'
+    msg = insert_data(table_name, data, db_config)
+    return msg
 
 
 def get_data_from_table(table_name):
