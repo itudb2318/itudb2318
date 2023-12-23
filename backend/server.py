@@ -11,7 +11,7 @@ CORS(app)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '1234',
+    'password': '',
     'database': 'banking'
 }
 
@@ -72,7 +72,7 @@ def get_data_from_table(table_name):
     cursor = connection.cursor(buffered=True)
 
     #querying table
-    query = f"SELECT * FROM {table_name} LIMIT 3000"
+    query = f"SELECT * FROM {table_name}"
     cursor.execute(query)
 
     #fetching all rows
