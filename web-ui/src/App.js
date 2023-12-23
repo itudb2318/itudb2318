@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
-import Dashboard from "./scenes/dashboard";
 import Districts from "./scenes/districts";
 import Transactions from "./scenes/transactions";
 import Crms from "./scenes/crms";
@@ -25,9 +23,8 @@ function App() {
         <div className="app">
           <Sidebar isSidebar={isSidebar} />
           <main className="content">
-            <Topbar setIsSidebar={setIsSidebar} />
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Districts />} />
               <Route path="/districts" element={<Districts />} />
               <Route path="/transactions" element={<Transactions />} />
               <Route path="/crms" element={<Crms />} />

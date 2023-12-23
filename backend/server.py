@@ -6,12 +6,12 @@ from update import update_data
 from create import insert_data
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})    
+CORS(app)    
 
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'ertekin.12',
+    'password': '1234',
     'database': 'banking'
 }
 
