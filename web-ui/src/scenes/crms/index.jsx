@@ -1,17 +1,10 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Button,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
+import { Box } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
+import { mockDataComplaints } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const Crms = () => {
@@ -19,25 +12,6 @@ const Crms = () => {
   const colors = tokens(theme.palette.mode);
 
   const [data, setData] = useState([]);
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const [newRowData, setNewRowData] = useState({
-    id: "",
-    date_received: "",
-    product: "",
-    sub_product: "",
-    issue: "",
-    sub_issue: "",
-    consumer_complaint_narrative: "",
-    tags: "",
-    consumer_consent_provided: "",
-    submitted_via: "",
-    date_sent_to_company: "",
-    company_response_to_consumer: "",
-    timely_response: "",
-    consumer_disputed: "",
-    complaint_id: "",
-    client_id: "",
-  });
 
   useEffect(() => {
     // Make a request to the Flask backend
@@ -51,164 +25,87 @@ const Crms = () => {
       });
   }, []);
 
-  const handleEditCellChange = (newRow, oldRow) => {
-    axios
-      .put(`http://localhost:5000/update/crm_events/${newRow.id}`, newRow)
-      .then((response) => {
-        console.log("Data updated successfully:", response.data);
-      })
-      .catch((error) => {
-        console.log("Error updating data:", error);
-      });
-
-    return newRow;
-  };
-
-  const handleDeleteRow = (id) => {
-    axios
-      .delete(`http://localhost:5000/delete/crm_events/${id}`)
-      .then((response) => {
-        console.log("Row deleted successfully:", response.data);
-
-        const updatedData = data.filter((row) => row.id !== id);
-        setData(updatedData);
-      })
-      .catch((error) => {
-        console.error("Error deleting row:", error);
-      });
-  };
-
-  const handleAddRow = () => {
-    setDialogOpen(true);
-  };
-
-  const handleDialogClose = () => {
-    setDialogOpen(false);
-  };
-
-  const handleSaveNewRow = () => {
-    setDialogOpen(false);
-    axios
-      .post("http://localhost:5000/insert/crm_events", newRowData)
-      .then((response) => {
-        console.log("New row added successfully:", response.data);
-        setData((prevData) => [...prevData, newRowData]);
-      })
-      .catch((error) => {
-        console.error("Error adding new row:", error);
-      });
-    setNewRowData({
-      id: "",
-      date_received: "",
-      product: "",
-      sub_product: "",
-      issue: "",
-      sub_issue: "",
-      consumer_complaint_narrative: "",
-      tags: "",
-      consumer_consent_provided: "",
-      submitted_via: "",
-      date_sent_to_company: "",
-      company_response_to_consumer: "",
-      timely_response: "",
-      consumer_disputed: "",
-      complaint_id: "",
-      client_id: "",
-    });
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewRowData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
   const columns = [
-    { field: "id", headerName: "ID", flex: 1, editable: true },
     {
       field: "date_received",
       headerName: "Date Recevied",
       flex: 1,
-      editable: true,
     },
-    { field: "product", headerName: "Product", flex: 1, editable: true },
+    {
+      field: "product",
+      headerName: "Product",
+      flex: 1,
+    },
     {
       field: "sub_product",
       headerName: "Sub Product",
       flex: 1,
-      editable: true,
     },
-    { field: "issue", headerName: "Issue", flex: 1, editable: true },
-    { field: "sub_issue", headerName: "Sub Issue", flex: 1, editable: true },
+    {
+      field: "issue",
+      headerName: "Issue",
+      flex: 1,
+    },
+    {
+      field: "sub_issue",
+      headerName: "Sub Issue",
+      flex: 1,
+    },
     {
       field: "consumer_complaint_narrative",
       headerName: "Consumer Complaint Narrative",
       flex: 1,
-      editable: true,
     },
-    { field: "tags", headerName: "Tags", flex: 1, editable: true },
+    {
+      field: "tags",
+      headerName: "Tags",
+      flex: 1,
+    },
     {
       field: "consumer_consent_provided",
       headerName: "Consumer Consent Provided",
       flex: 1,
-      editable: true,
     },
     {
       field: "submitted_via",
       headerName: "Submitted Via",
       flex: 1,
-      editable: true,
     },
     {
       field: "date_sent_to_company",
       headerName: "Date Sent To Company",
       flex: 1,
-      editable: true,
     },
     {
       field: "company_response_to_consumer",
       headerName: "Company Response To Consumer",
       flex: 1,
-      editable: true,
     },
     {
       field: "timely_response",
       headerName: "Timely Response",
       flex: 1,
-      editable: true,
     },
     {
       field: "consumer_disputed",
       headerName: "Consumer Disputed",
       flex: 1,
-      editable: true,
     },
     {
       field: "complaint_id",
       headerName: "Complaint ID",
       flex: 1,
-      editable: true,
     },
-    { field: "client_id", headerName: "Client ID", flex: 1, editable: true },
     {
-      field: "actions",
-      headerName: "Actions",
+      field: "client_id",
+      headerName: "Client ID",
       flex: 1,
-      sortable: false,
-      renderCell: (params) => (
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={() => handleDeleteRow(params.row.id)}
-        >
-          Delete
-        </Button>
-      ),
     },
   ];
 
   return (
     <Box m="20px">
-      <Header title="CRM EVENTS TABLE" />
+      <Header title="CRMs" subtitle="List of Crms for Future Reference" />
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -238,161 +135,13 @@ const Crms = () => {
           },
         }}
       >
-        <Button onClick={handleAddRow} variant="outlined" color="secondary">
-          Add Row
-        </Button>
         <DataGrid
           rows={data}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
           getRowId={(row) => row.id}
-          processRowUpdate={handleEditCellChange}
         />
       </Box>
-
-      <Dialog open={isDialogOpen} onClose={handleDialogClose}>
-        <DialogTitle>Add New Row</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="ID"
-            name="id"
-            value={newRowData.id}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Date Received"
-            name="date_received"
-            value={newRowData.date_received}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Product"
-            name="product"
-            value={newRowData.product}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Sub Product"
-            name="sub_product"
-            value={newRowData.sub_product}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Issue"
-            name="issue"
-            value={newRowData.issue}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Sub Issue"
-            name="sub_issue"
-            value={newRowData.sub_issue}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Consumer Complaint Narrative"
-            name="consumer_complaint_narrative"
-            value={newRowData.consumer_complaint_narrative}
-            onChange={handleInputChange}
-            multiline
-            rows={4}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Tags"
-            name="tags"
-            value={newRowData.tags}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Consumer Consent Provided"
-            name="consumer_consent_provided"
-            value={newRowData.consumer_consent_provided}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Submitted Via"
-            name="submitted_via"
-            value={newRowData.submitted_via}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Date Sent To Company"
-            name="date_sent_to_company"
-            value={newRowData.date_sent_to_company}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Company Response To Consumer"
-            name="company_response_to_consumer"
-            value={newRowData.company_response_to_consumer}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Timely Response"
-            name="timely_response"
-            value={newRowData.timely_response}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Consumer Disputed"
-            name="consumer_disputed"
-            value={newRowData.consumer_disputed}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Complaint ID"
-            name="complaint_id"
-            value={newRowData.complaint_id}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Client ID"
-            name="client_id"
-            value={newRowData.client_id}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={handleSaveNewRow} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

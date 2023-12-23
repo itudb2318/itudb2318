@@ -1,5 +1,1 @@
-Setup the development environment, practiced some basic sql queries with the database. 
-Developed a basic UI for the app, connected the frontend of the project to the backend server.
-Added the create and update features to the frontend.
-All of the CRUD operations can be performed in the front end for all of the tables, further improved the design of the frontend
-Fixed a bug where the delete function of backend did not work properly, workspace is adjusted (deleted unnecessary files)
+Setup the development environment, practiced some basic sql queries with the database. Developed a basic UI for the app, connected the frontend of the project to the backend server. Added the create and update features to the frontend.

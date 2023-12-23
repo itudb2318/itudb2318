@@ -30,6 +30,7 @@ const Accounts = () => {
   });
 
   useEffect(() => {
+    // Make a request to the Flask backend
     axios
       .get("http://localhost:5000/api/data/get_completedacct")
       .then((response) => {
@@ -41,33 +42,40 @@ const Accounts = () => {
   }, []);
 
   const handleEditCellChange = (newRow, oldRow) => {
+    console.log("Old row is: ", oldRow);
+    console.log("New row is: ", newRow);
     axios
-      .put(
-        `http://localhost:5000/update/completedacct/${newRow.account_id}`,
-        newRow
-      )
+      .put(`http://localhost:5000/update/completedacct/${newRow.account_id}`, {
+        newRow,
+      })
       .then((response) => {
         console.log("Data updated successfully:", response.data);
       })
       .catch((error) => {
-        console.log("Error updating data:", error);
+        console.error("Error updating data:", error);
       });
-
     return newRow;
   };
 
-  const handleDeleteRow = (account_id) => {
-    axios
-      .delete(`http://localhost:5000/delete/completedacct/${account_id}`)
+  const handleDeleteRow = (selectedRowIds) => {
+    console.log("Selected row ids: ", selectedRowIds);
+    const updatedData = data.filter(
+      (row) => !selectedRowIds.includes(row.account_id)
+    );
+    setData(updatedData);
+
+    // Make a request to the Flask backend to delete the row
+    const deletedRowIds = selectedRowIds.join(",");
+    /*axios
+      .delete(`http://localhost:5000/delete/completedacct/${deletedRowIds}`)
       .then((response) => {
         console.log("Row deleted successfully:", response.data);
-
-        const updatedData = data.filter((row) => row.account_id !== account_id);
-        setData(updatedData);
       })
       .catch((error) => {
         console.error("Error deleting row:", error);
-      });
+        // If there's an error, you might want to revert the local state
+        setData(data);
+      });*/
   };
 
   const handleAddRow = () => {
@@ -79,16 +87,12 @@ const Accounts = () => {
   };
 
   const handleSaveNewRow = () => {
+    const newRow = {
+      ...newRowData,
+    };
+
+    setData((prevData) => [...prevData, newRow]);
     setDialogOpen(false);
-    axios
-      .post("http://localhost:5000/insert/completedacct", newRowData)
-      .then((response) => {
-        console.log("New row added successfully:", response.data);
-        setData((prevData) => [...prevData, newRowData]);
-      })
-      .catch((error) => {
-        console.error("Error adding new row:", error);
-      });
     setNewRowData({
       account_id: "",
       district_id: "",
@@ -110,7 +114,7 @@ const Accounts = () => {
       field: "account_id",
       headerName: "Account ID",
       flex: 0.5,
-      editable: true,
+      editable: false,
     },
     {
       field: "district_id",
@@ -123,26 +127,14 @@ const Accounts = () => {
     { field: "year", headerName: "Year", flex: 1, editable: true },
     { field: "month", headerName: "Month", flex: 1, editable: true },
     { field: "day", headerName: "Day", flex: 1, editable: true },
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: 1,
-      sortable: false,
-      renderCell: (params) => (
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={() => handleDeleteRow(params.row.account_id)}
-        >
-          Delete
-        </Button>
-      ),
-    },
   ];
 
   return (
     <Box m="20px">
-      <Header title="ACCOUNTS TABLE" />
+      <Header
+        title="ACCOUNTS"
+        subtitle="List of Accounts for Future Reference"
+      />
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -172,7 +164,7 @@ const Accounts = () => {
           },
         }}
       >
-        <Button onClick={handleAddRow} variant="outlined" color="secondary">
+        <Button onClick={handleAddRow} variant="contained" color="primary">
           Add Row
         </Button>
         <DataGrid
@@ -182,6 +174,13 @@ const Accounts = () => {
           getRowId={(row) => row.account_id}
           processRowUpdate={handleEditCellChange}
         />
+        <Button
+          onClick={() => handleDeleteRow(data.map((row) => row.account_id))}
+          variant="contained"
+          color="secondary"
+        >
+          Delete Selected Rows
+        </Button>
       </Box>
 
       <Dialog open={isDialogOpen} onClose={handleDialogClose}>

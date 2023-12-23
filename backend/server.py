@@ -6,12 +6,12 @@ from update import update_data
 from create import insert_data
 
 app = Flask(__name__)
-CORS(app)    
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})    
 
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '1234',
+    'password': 'ertekin.12',
     'database': 'banking'
 }
 
@@ -48,12 +48,11 @@ def get_completedtrans():
 def get_crm_events():
     return get_data_from_table('crm_events')
 
-@app.route('/delete/<string:table_name>/<string:item_id>', methods=['DELETE'])
+@app.route('/delete/<string:table_name>/<int:item_id>', methods=['DELETE'])
 def delete(table_name, item_id):
-    delete_item(table_name, item_id,db_config)
-    return jsonify({'message': 'Data deleted successfully'})
+    delete_item(table_name, item_id)
     
-@app.route('/update/<string:table_name>/<string:item_id>', methods=['PUT'])
+@app.route('/update/<string:table_name>/<int:item_id>', methods=['PUT'])
 def update(table_name, item_id):
     data = request.get_json()
     update_data(table_name, item_id, data, db_config)
@@ -72,7 +71,7 @@ def get_data_from_table(table_name):
     cursor = connection.cursor(buffered=True)
 
     #querying table
-    query = f"SELECT * FROM {table_name}"
+    query = f"SELECT * FROM {table_name} LIMIT 3000"
     cursor.execute(query)
 
     #fetching all rows

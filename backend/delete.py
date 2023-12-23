@@ -1,7 +1,4 @@
-import json
-import mysql.connector
-
-def delete_item(table_name, item_id, db_config):
+def delete_item(table_name, item_id):
     if table_name == 'completedacct':
         table_id = 'account_id'
     elif table_name == 'completedcard':
@@ -19,18 +16,4 @@ def delete_item(table_name, item_id, db_config):
     elif table_name == 'crm_events':
         table_id = 'id'
         
-    # Use a placeholder (%s) to avoid SQL injection
-    query = f"DELETE FROM {table_name} WHERE {table_id} = %s"
-    
-    # Tuple with the item_id as its only element
-    values = (item_id,)
-
-    # Connect to the database and execute the query
-    connection = mysql.connector.connect(**db_config)
-    cursor = connection.cursor()
-    cursor.execute(query, values)
-    
-    # Commit the changes and close the cursor and connection
-    connection.commit()
-    cursor.close()
-    connection.close()
+    query = f"DELETE FROM {table_name} where {table_id} = {id};"
