@@ -27,7 +27,6 @@ const Clients = () => {
     day: "",
     month: "",
     year: "",
-    date: "",
     age: "",
     social: "",
     first: "",
@@ -111,7 +110,6 @@ const Clients = () => {
       day: "",
       month: "",
       year: "",
-      date: "",
       age: "",
       social: "",
       first: "",
@@ -137,10 +135,8 @@ const Clients = () => {
     { field: "client_id", headerName: "Client ID", flex: 0.5, editable: true },
     { field: "sex", headerName: "Sex", flex: 1, editable: true },
     { field: "fulldate", headerName: "Full Date", flex: 1, editable: true },
-    { field: "day", headerName: "Day", flex: 1, editable: true },
     { field: "month", headerName: "Month", flex: 1, editable: true },
     { field: "year", headerName: "Year", flex: 1, editable: true },
-    { field: "date", headerName: "Date", flex: 1, editable: true },
     { field: "age", headerName: "Age", flex: 1, editable: true },
     { field: "social", headerName: "Social", flex: 1, editable: true },
     { field: "first", headerName: "First", flex: 1, editable: true },
@@ -267,14 +263,6 @@ const Clients = () => {
             label="Year"
             name="year"
             value={newRowData.year}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Date"
-            name="date"
-            value={newRowData.date}
             onChange={handleInputChange}
             fullWidth
             margin="normal"
