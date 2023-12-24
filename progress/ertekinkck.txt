@@ -2,8 +2,15 @@ Created organization, created progress file and ertekinkck.txt file.
 Created basic CRUD templates related to database. (To be improved later)
 Deleted unnecessary files.
 Added mysql datas as zip file.
-Created Update and Create functions for backend.
-Update function generalized and mase corrections in it.
+Created Update and Create functions for backend.(update.py , create.py)
+Update function generalized and made corrections in it.
 Added proper routes into the server.py
+Read.py deleted(It is already in the server.py file).
+Added try except blocks into the delete, update, create files.
+Database fixed. Added to the datas folder.
+Database's completedtrans table records reduced for effective backend operations.
+Database on delete cascade, on update cascade added to the required tables.
+Database data types changed, datetime->varchar. Ids types changed to the varchar.
+
 
 
