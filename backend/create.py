@@ -9,7 +9,11 @@ def insert_data(table_name, data, db_config):
     values = ', '.join(['%s' for _ in data.values()])
 
     query = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-    cursor.execute(query, tuple(data.values()))
+    
+    try:
+        cursor.execute(query, tuple(data.values()))
+    except Exception as e:
+        print(e)
 
     connection.commit()
 

@@ -28,7 +28,10 @@ def delete_item(table_name, item_id, db_config):
     # Connect to the database and execute the query
     connection = mysql.connector.connect(**db_config)
     cursor = connection.cursor()
-    cursor.execute(query, values)
+    try:
+        cursor.execute(query, values)
+    except Exception as e:
+        print(e)
     
     # Commit the changes and close the cursor and connection
     connection.commit()

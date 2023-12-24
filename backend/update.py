@@ -47,7 +47,11 @@ def update_data(table_name, item_id, data, db_config):
 
     
         update_values = tuple(str(data[key]) if key == 'id' else data[key] for key in data.keys())
-    cursor.execute(query, update_values + (str(item_id),))
+    
+    try:
+        cursor.execute(query, update_values + (str(item_id),))
+    except Exception as e:
+        print(e)
 
     connection.commit()
     
