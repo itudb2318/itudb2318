@@ -1,1 +1,3 @@
 flask backend file written, as well as javascript files for displaying table data
+
+fine tuning and minor fixes on backend
