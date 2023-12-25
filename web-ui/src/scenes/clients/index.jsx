@@ -20,6 +20,8 @@ const Clients = () => {
 
   const [data, setData] = useState([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [apiError, setApiError] = useState(null);
+
   const [newRowData, setNewRowData] = useState({
     client_id: "",
     sex: "",
@@ -138,7 +140,8 @@ const Clients = () => {
         newRow
       )
       .then((response) => {
-        console.log("Data updated successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completedclient")
           .then((response) => {
@@ -159,7 +162,8 @@ const Clients = () => {
     axios
       .delete(`http://localhost:5000/delete/completedclient/${client_id}`)
       .then((response) => {
-        console.log("Row deleted successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
 
         axios
           .get("http://localhost:5000/api/data/get_completedclient")
@@ -267,7 +271,8 @@ const Clients = () => {
     axios
       .post("http://localhost:5000/insert/completedclient", newRowData)
       .then((response) => {
-        console.log("New row added successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completedclient")
           .then((response) => {
@@ -414,6 +419,7 @@ const Clients = () => {
         {errors.district_id && (
           <div style={{ color: "red" }}>{errors.district_id}</div>
         )}
+        {apiError && <div style={{ color: "red" }}>{apiError.message}</div>}
         <Button onClick={handleAddRow} variant="outlined" color="secondary">
           Add Row
         </Button>

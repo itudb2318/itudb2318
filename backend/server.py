@@ -11,7 +11,7 @@ CORS(app)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'ertekin.12',
+    'password': '1234',
     'database': 'banking'
 }
 

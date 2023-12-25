@@ -20,6 +20,7 @@ const Cards = () => {
 
   const [data, setData] = useState([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [apiError, setApiError] = useState(null);
   const [newRowData, setNewRowData] = useState({
     card_id: "",
     disp_id: "",
@@ -91,7 +92,8 @@ const Cards = () => {
         newRow
       )
       .then((response) => {
-        console.log("Data updated successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completedcard")
           .then((response) => {
@@ -112,7 +114,8 @@ const Cards = () => {
     axios
       .delete(`http://localhost:5000/delete/completedcard/${card_id}`)
       .then((response) => {
-        console.log("Row deleted successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
 
         axios
           .get("http://localhost:5000/api/data/get_completedcard")
@@ -184,7 +187,8 @@ const Cards = () => {
     axios
       .post("http://localhost:5000/insert/completedcard", newRowData)
       .then((response) => {
-        console.log("New row added successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completedcard")
           .then((response) => {
@@ -286,6 +290,7 @@ const Cards = () => {
         {errors.year && <div style={{ color: "red" }}>{errors.year}</div>}
         {errors.month && <div style={{ color: "red" }}>{errors.month}</div>}
         {errors.day && <div style={{ color: "red" }}>{errors.day}</div>}
+        {apiError && <div style={{ color: "red" }}>{apiError.message}</div>}
         <DataGrid
           rows={data}
           columns={columns}

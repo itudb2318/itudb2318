@@ -20,6 +20,8 @@ const Districts = () => {
 
   const [data, setData] = useState([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [apiError, setApiError] = useState(null);
+
   const [newRowData, setNewRowData] = useState({
     district_id: "",
     city: "",
@@ -45,6 +47,7 @@ const Districts = () => {
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
+        setApiError(error);
       });
   }, []);
 
@@ -79,7 +82,8 @@ const Districts = () => {
         newRow
       )
       .then((response) => {
-        console.log("Data updated successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completeddistrict")
           .then((response) => {
@@ -90,7 +94,7 @@ const Districts = () => {
           });
       })
       .catch((error) => {
-        console.log("Error updating data:", error);
+        console.error("Error fetching data:", error);
       });
 
     return newRow;
@@ -100,19 +104,20 @@ const Districts = () => {
     axios
       .delete(`http://localhost:5000/delete/completeddistrict/${district_id}`)
       .then((response) => {
-        console.log("Row deleted successfully:", response.data);
+        console.log(response.data);
 
         axios
           .get("http://localhost:5000/api/data/get_completeddistrict")
           .then((response) => {
             setData(response.data);
+            setApiError(response.data);
           })
           .catch((error) => {
             console.error("Error fetching data:", error);
           });
       })
       .catch((error) => {
-        console.error("Error deleting row:", error);
+        console.error("Error fetching data:", error);
       });
   };
 
@@ -142,18 +147,19 @@ const Districts = () => {
     axios
       .post("http://localhost:5000/insert/completeddistrict", newRowData)
       .then((response) => {
-        console.log("New row added successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completeddistrict")
           .then((response) => {
             setData(response.data);
           })
           .catch((error) => {
-            console.error("Error fetching data:", error);
+            console.error(error);
           });
       })
       .catch((error) => {
-        console.error("Error adding new row:", error);
+        console.error(error);
       });
 
     setNewRowData({
@@ -262,6 +268,8 @@ const Districts = () => {
         {errors.district_id && (
           <div style={{ color: "red" }}>{errors.district_id}</div>
         )}
+        {apiError && <div style={{ color: "red" }}>{apiError.message}</div>}
+
         <DataGrid
           rows={data}
           columns={columns}

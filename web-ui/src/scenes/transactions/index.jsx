@@ -20,6 +20,8 @@ const Transactions = () => {
 
   const [data, setData] = useState([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [apiError, setApiError] = useState(null);
+
   const [newRowData, setNewRowData] = useState({
     column_a: "",
     trans_id: "",
@@ -117,7 +119,8 @@ const Transactions = () => {
         newRow
       )
       .then((response) => {
-        console.log("Data updated successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completedtrans")
           .then((response) => {
@@ -140,7 +143,8 @@ const Transactions = () => {
     axios
       .delete(`http://localhost:5000/delete/completedtrans/${trans_id}`)
       .then((response) => {
-        console.log("Row deleted successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
 
         axios
           .get("http://localhost:5000/api/data/get_completedtrans")
@@ -196,6 +200,7 @@ const Transactions = () => {
           .get("http://localhost:5000/api/data/get_completedtrans")
           .then((response) => {
             setData(response.data);
+            setApiError(response.data);
           })
           .catch((error) => {
             console.error("Error fetching data:", error);
@@ -351,6 +356,7 @@ const Transactions = () => {
         {errors.year && <div style={{ color: "red" }}>{errors.year}</div>}
         {errors.month && <div style={{ color: "red" }}>{errors.month}</div>}
         {errors.day && <div style={{ color: "red" }}>{errors.day}</div>}
+        {apiError && <div style={{ color: "red" }}>{apiError.message}</div>}
         <Button
           variant="outlined"
           color="secondary"

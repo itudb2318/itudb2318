@@ -20,6 +20,8 @@ const Crms = () => {
 
   const [data, setData] = useState([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [apiError, setApiError] = useState(null);
+
   const [newRowData, setNewRowData] = useState({
     date_received: "",
     product: "",
@@ -71,7 +73,8 @@ const Crms = () => {
     axios
       .put(`http://localhost:5000/update/crm_events/${newRow.id}`, newRow)
       .then((response) => {
-        console.log("Data updated successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_crm_events")
           .then((response) => {
@@ -92,7 +95,8 @@ const Crms = () => {
     axios
       .delete(`http://localhost:5000/delete/crm_events/${id}`)
       .then((response) => {
-        console.log("Row deleted successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
 
         axios
           .get("http://localhost:5000/api/data/get_crm_events")
@@ -161,7 +165,8 @@ const Crms = () => {
     axios
       .post("http://localhost:5000/insert/crm_events", newRowData)
       .then((response) => {
-        console.log("New row added successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_crm_events")
           .then((response) => {
@@ -331,6 +336,7 @@ const Crms = () => {
           },
         }}
       >
+        {apiError && <div style={{ color: "red" }}>{apiError.message}</div>}
         <Button onClick={handleAddRow} variant="outlined" color="secondary">
           Add Row
         </Button>

@@ -19,6 +19,8 @@ const Accounts = () => {
   const colors = tokens(theme.palette.mode);
   const [data, setData] = useState([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [apiError, setApiError] = useState(null);
+
   const [newRowData, setNewRowData] = useState({
     account_id: "",
     district_id: "",
@@ -102,7 +104,8 @@ const Accounts = () => {
         newRow
       )
       .then((response) => {
-        console.log("Data updated successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completedacct")
           .then((response) => {
@@ -123,7 +126,8 @@ const Accounts = () => {
     axios
       .delete(`http://localhost:5000/delete/completedacct/${account_id}`)
       .then((response) => {
-        console.log("Row deleted successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completedacct")
           .then((response) => {
@@ -204,7 +208,8 @@ const Accounts = () => {
     axios
       .post("http://localhost:5000/insert/completedacct", newRow)
       .then((response) => {
-        console.log("New row added successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completedacct")
           .then((response) => {
@@ -326,6 +331,7 @@ const Accounts = () => {
           <div style={{ color: "red" }}>{editErrors.month}</div>
         )}
         {editErrors.day && <div style={{ color: "red" }}>{editErrors.day}</div>}
+        {apiError && <div style={{ color: "red" }}>{apiError.message}</div>}
 
         <DataGrid
           rows={data}

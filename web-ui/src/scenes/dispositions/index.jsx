@@ -20,6 +20,8 @@ const Dispositions = () => {
 
   const [data, setData] = useState([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [apiError, setApiError] = useState(null);
+
   const [newRowData, setNewRowData] = useState({
     disp_id: "",
     client_id: "",
@@ -51,7 +53,8 @@ const Dispositions = () => {
         newRow
       )
       .then((response) => {
-        console.log("Data updated successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completeddisposition")
           .then((response) => {
@@ -72,7 +75,8 @@ const Dispositions = () => {
     axios
       .delete(`http://localhost:5000/delete/completeddisposition/${disp_id}`)
       .then((response) => {
-        console.log("Row deleted successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
 
         axios
           .get("http://localhost:5000/api/data/get_completeddisposition")
@@ -106,7 +110,8 @@ const Dispositions = () => {
     axios
       .post("http://localhost:5000/insert/completeddisposition", newRowData)
       .then((response) => {
-        console.log("New row added successfully:", response.data);
+        console.log(response.data);
+        setApiError(response.data);
         axios
           .get("http://localhost:5000/api/data/get_completeddisposition")
           .then((response) => {
@@ -206,6 +211,7 @@ const Dispositions = () => {
           },
         }}
       >
+        {apiError && <div style={{ color: "red" }}>{apiError.message}</div>}
         <Button onClick={handleAddRow} variant="outlined" color="secondary">
           Add Row
         </Button>
