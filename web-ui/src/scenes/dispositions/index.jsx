@@ -26,9 +26,14 @@ const Dispositions = () => {
     account_id: "",
     type: "",
   });
+  const [errors, setErrors] = useState({
+    disp_id: "",
+    client_id: "",
+    account_id: "",
+    type: "",
+  });
 
   useEffect(() => {
-    // Make a request to the Flask backend
     axios
       .get("http://localhost:5000/api/data/get_completeddisposition")
       .then((response) => {
@@ -47,6 +52,14 @@ const Dispositions = () => {
       )
       .then((response) => {
         console.log("Data updated successfully:", response.data);
+        axios
+          .get("http://localhost:5000/api/data/get_completeddisposition")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.log("Error updating data:", error);
@@ -61,8 +74,14 @@ const Dispositions = () => {
       .then((response) => {
         console.log("Row deleted successfully:", response.data);
 
-        const updatedData = data.filter((row) => row.disp_id !== disp_id);
-        setData(updatedData);
+        axios
+          .get("http://localhost:5000/api/data/get_completeddisposition")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error deleting row:", error);
@@ -78,16 +97,29 @@ const Dispositions = () => {
   };
 
   const handleSaveNewRow = () => {
+    const isValid = validateForm();
+    if (!isValid) {
+      return;
+    }
+
     setDialogOpen(false);
     axios
       .post("http://localhost:5000/insert/completeddisposition", newRowData)
       .then((response) => {
         console.log("New row added successfully:", response.data);
-        setData((prevData) => [...prevData, newRowData]);
+        axios
+          .get("http://localhost:5000/api/data/get_completeddisposition")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error adding new row:", error);
       });
+
     setNewRowData({
       disp_id: "",
       client_id: "",
@@ -99,10 +131,29 @@ const Dispositions = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewRowData((prevData) => ({ ...prevData, [name]: value }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { ...errors };
+
+    if (!newRowData.disp_id.trim()) {
+      newErrors.disp_id = "Disposition ID is required";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
   };
 
   const columns = [
-    { field: "disp_id", headerName: "Disposition ID", flex: 0.5 },
+    {
+      field: "disp_id",
+      headerName: "Disposition ID",
+      flex: 0.5,
+      editable: false,
+    },
     { field: "client_id", headerName: "Client ID", flex: 1, editable: true },
     { field: "account_id", headerName: "Account ID", flex: 1, editable: true },
     { field: "type", headerName: "Type", flex: 1, editable: true },
@@ -177,6 +228,8 @@ const Dispositions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.disp_id}
+            helperText={errors.disp_id}
           />
           <TextField
             label="Client ID"
@@ -185,6 +238,8 @@ const Dispositions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.client_id}
+            helperText={errors.client_id}
           />
           <TextField
             label="Account ID"
@@ -193,6 +248,8 @@ const Dispositions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.account_id}
+            helperText={errors.account_id}
           />
           <TextField
             label="Type"
@@ -201,6 +258,8 @@ const Dispositions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.type}
+            helperText={errors.type}
           />
         </DialogContent>
         <DialogActions>

@@ -39,6 +39,25 @@ const Transactions = () => {
     fulldatewithtime: "",
   });
 
+  const [errors, setErrors] = useState({
+    column_a: "",
+    trans_id: "",
+    account_id: "",
+    type: "",
+    operation: "",
+    amount: "",
+    balance: "",
+    k_symbol: "",
+    bank: "",
+    account: "",
+    year: "",
+    month: "",
+    day: "",
+    fulldate: "",
+    fulltime: "",
+    fulldatewithtime: "",
+  });
+
   useEffect(() => {
     axios
       .get("http://localhost:5000/api/data/get_completedtrans")
@@ -51,29 +70,86 @@ const Transactions = () => {
   }, []);
 
   const handleEditCellChange = (newRow, oldRow) => {
+    const newErrors = {
+      column_a: "",
+      trans_id: "",
+      account_id: "",
+      type: "",
+      operation: "",
+      amount: "",
+      balance: "",
+      k_symbol: "",
+      bank: "",
+      account: "",
+      year: "",
+      month: "",
+      day: "",
+      fulldate: "",
+      fulltime: "",
+      fulldatewithtime: "",
+    };
+
+    const numericFields = [
+      "column_a",
+      "amount",
+      "balance",
+      "year",
+      "month",
+      "day",
+    ];
+
+    numericFields.forEach((field) => {
+      if (isNaN(newRow[field])) {
+        newErrors[field] = `${field} must be a valid number.`;
+      }
+    });
+
+    if (Object.values(newErrors).some((error) => error !== "")) {
+      setErrors(newErrors);
+      return oldRow;
+    }
+
+    setErrors({});
+
     axios
       .put(
-        `http://localhost:5000/update/completedtrans/${newRow.column_a}`,
+        `http://localhost:5000/update/completedtrans/${newRow.trans_id}`,
         newRow
       )
       .then((response) => {
         console.log("Data updated successfully:", response.data);
+        axios
+          .get("http://localhost:5000/api/data/get_completedtrans")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.log("Error updating data:", error);
+
+        setErrors({ ...newErrors, general: "Error updating data." });
       });
 
     return newRow;
   };
 
-  const handleDeleteRow = (column_a) => {
+  const handleDeleteRow = (trans_id) => {
     axios
-      .delete(`http://localhost:5000/delete/completedtrans/${column_a}`)
+      .delete(`http://localhost:5000/delete/completedtrans/${trans_id}`)
       .then((response) => {
         console.log("Row deleted successfully:", response.data);
 
-        const updatedData = data.filter((row) => row.column_a !== column_a);
-        setData(updatedData);
+        axios
+          .get("http://localhost:5000/api/data/get_completedtrans")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error deleting row:", error);
@@ -86,19 +162,49 @@ const Transactions = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
+    setErrors({
+      column_a: "",
+      trans_id: "",
+      account_id: "",
+      type: "",
+      operation: "",
+      amount: "",
+      balance: "",
+      k_symbol: "",
+      bank: "",
+      account: "",
+      year: "",
+      month: "",
+      day: "",
+      fulldate: "",
+      fulltime: "",
+      fulldatewithtime: "",
+    });
   };
 
   const handleSaveNewRow = () => {
+    const isValid = validateForm();
+    if (!isValid) {
+      return;
+    }
+
     setDialogOpen(false);
     axios
       .post("http://localhost:5000/insert/completedtrans", newRowData)
       .then((response) => {
-        console.log("New row added successfully:", response.data);
-        setData((prevData) => [...prevData, newRowData]);
+        axios
+          .get("http://localhost:5000/api/data/get_completedtrans")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error adding new row:", error);
       });
+
     setNewRowData({
       column_a: "",
       trans_id: "",
@@ -122,15 +228,49 @@ const Transactions = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewRowData((prevData) => ({ ...prevData, [name]: value }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { ...errors };
+
+    const numericFields = [
+      "column_a",
+      "amount",
+      "balance",
+      "year",
+      "month",
+      "day",
+    ];
+    numericFields.forEach((field) => {
+      if (isNaN(Number(newRowData[field]))) {
+        newErrors[field] = `${field} must be a numeric value`;
+        valid = false;
+      }
+    });
+
+    if (!newRowData.column_a.trim()) {
+      newErrors.column_a = "Column A is required";
+      valid = false;
+    }
+
+    if (!newRowData.trans_id.trim()) {
+      newErrors.trans_id = "Trans ID is required";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
   };
 
   const columns = [
-    { field: "column_a", headerName: "Column A", flex: 0.5, editable: true },
+    { field: "column_a", headerName: "Column A", flex: 0.5, editable: false },
     {
       field: "trans_id",
       headerName: "Transaction ID",
       flex: 1,
-      editable: true,
+      editable: false,
     },
     { field: "account_id", headerName: "Account ID", flex: 1, editable: true },
     { field: "type", headerName: "Type", flex: 1, editable: true },
@@ -160,7 +300,7 @@ const Transactions = () => {
         <Button
           variant="outlined"
           color="secondary"
-          onClick={() => handleDeleteRow(params.row.column_a)}
+          onClick={() => handleDeleteRow(params.row.trans_id)}
         >
           Delete
         </Button>
@@ -200,6 +340,17 @@ const Transactions = () => {
           },
         }}
       >
+        {errors.column_a && (
+          <div style={{ color: "red" }}>{errors.column_a}</div>
+        )}
+        {errors.trans_id && (
+          <div style={{ color: "red" }}>{errors.trans_id}</div>
+        )}
+        {errors.amount && <div style={{ color: "red" }}>{errors.amount}</div>}
+        {errors.balance && <div style={{ color: "red" }}>{errors.balance}</div>}
+        {errors.year && <div style={{ color: "red" }}>{errors.year}</div>}
+        {errors.month && <div style={{ color: "red" }}>{errors.month}</div>}
+        {errors.day && <div style={{ color: "red" }}>{errors.day}</div>}
         <Button
           variant="outlined"
           color="secondary"
@@ -212,8 +363,8 @@ const Transactions = () => {
           rows={data}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
-          getRowId={(row) => row.column_a}
-          onEditCellChange={handleEditCellChange}
+          getRowId={(row) => row.trans_id}
+          processRowUpdate={handleEditCellChange}
         />
       </Box>
 
@@ -227,6 +378,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.column_a)}
+            helperText={errors.column_a}
           />
           <TextField
             label="Transaction ID"
@@ -235,6 +388,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.trans_id)}
+            helperText={errors.trans_id}
           />
           <TextField
             label="Account ID"
@@ -243,6 +398,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.account_id)}
+            helperText={errors.account_id}
           />
           <TextField
             label="Type"
@@ -251,6 +408,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.type)}
+            helperText={errors.type}
           />
           <TextField
             label="Operation"
@@ -259,6 +418,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.operation)}
+            helperText={errors.operation}
           />
           <TextField
             label="Amount"
@@ -267,6 +428,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.amount)}
+            helperText={errors.amount}
           />
           <TextField
             label="Balance"
@@ -275,6 +438,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.balance)}
+            helperText={errors.balance}
           />
           <TextField
             label="K Symbol"
@@ -283,6 +448,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.k_symbol)}
+            helperText={errors.k_symbol}
           />
           <TextField
             label="Bank"
@@ -291,6 +458,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.bank)}
+            helperText={errors.bank}
           />
           <TextField
             label="Account"
@@ -299,6 +468,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.account)}
+            helperText={errors.account}
           />
           <TextField
             label="Year"
@@ -307,6 +478,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.year)}
+            helperText={errors.year}
           />
           <TextField
             label="Month"
@@ -315,6 +488,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.month)}
+            helperText={errors.month}
           />
           <TextField
             label="Day"
@@ -323,6 +498,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.day)}
+            helperText={errors.day}
           />
           <TextField
             label="Full Date"
@@ -331,6 +508,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.fulldate)}
+            helperText={errors.fulldate}
           />
           <TextField
             label="Full Time"
@@ -339,6 +518,8 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.fulltime)}
+            helperText={errors.fulltime}
           />
           <TextField
             label="Full Date With Time"
@@ -347,15 +528,15 @@ const Transactions = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={Boolean(errors.fulldatewithtime)}
+            helperText={errors.fulldatewithtime}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button
-            onClick={handleSaveNewRow}
-            variant="contained"
-            color="primary"
-          >
+          <Button onClick={handleDialogClose} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSaveNewRow} color="primary">
             Save
           </Button>
         </DialogActions>

@@ -28,6 +28,24 @@ const Accounts = () => {
     month: "",
     day: "",
   });
+  const [errors, setErrors] = useState({
+    account_id: "",
+    district_id: "",
+    frequency: "",
+    parseddate: "",
+    year: "",
+    month: "",
+    day: "",
+  });
+  const [editErrors, setEditErrors] = useState({
+    account_id: "",
+    district_id: "",
+    frequency: "",
+    parseddate: "",
+    year: "",
+    month: "",
+    day: "",
+  });
 
   useEffect(() => {
     axios
@@ -41,6 +59,43 @@ const Accounts = () => {
   }, []);
 
   const handleEditCellChange = (newRow, oldRow) => {
+    const newErrors = {
+      account_id: "",
+      district_id: "",
+      frequency: "",
+      parseddate: "",
+      year: "",
+      month: "",
+      day: "",
+    };
+
+    if (!newRow.account_id) {
+      newErrors.account_id = "Account ID is required.";
+    }
+
+    if (isNaN(newRow.district_id)) {
+      newErrors.district_id = "District ID must be a valid number.";
+    }
+
+    if (isNaN(newRow.year)) {
+      newErrors.year = "Year must be a valid number.";
+    }
+
+    if (isNaN(newRow.month)) {
+      newErrors.month = "Month must be a valid number.";
+    }
+
+    if (isNaN(newRow.day)) {
+      newErrors.day = "Day must be a valid number.";
+    }
+
+    if (Object.values(newErrors).some((error) => error !== "")) {
+      setEditErrors(newErrors);
+      return oldRow;
+    }
+
+    setEditErrors({});
+
     axios
       .put(
         `http://localhost:5000/update/completedacct/${newRow.account_id}`,
@@ -48,6 +103,14 @@ const Accounts = () => {
       )
       .then((response) => {
         console.log("Data updated successfully:", response.data);
+        axios
+          .get("http://localhost:5000/api/data/get_completedacct")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.log("Error updating data:", error);
@@ -61,9 +124,14 @@ const Accounts = () => {
       .delete(`http://localhost:5000/delete/completedacct/${account_id}`)
       .then((response) => {
         console.log("Row deleted successfully:", response.data);
-
-        const updatedData = data.filter((row) => row.account_id !== account_id);
-        setData(updatedData);
+        axios
+          .get("http://localhost:5000/api/data/get_completedacct")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error deleting row:", error);
@@ -76,20 +144,90 @@ const Accounts = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
+    setErrors({
+      account_id: "",
+      district_id: "",
+      frequency: "",
+      parseddate: "",
+      year: "",
+      month: "",
+      day: "",
+    });
   };
 
   const handleSaveNewRow = () => {
+    const newErrors = {
+      account_id: "",
+      district_id: "",
+      frequency: "",
+      parseddate: "",
+      year: "",
+      month: "",
+      day: "",
+    };
+
+    const newRow = {
+      ...newRowData,
+      district_id: parseInt(newRowData.district_id, 10),
+      year: parseInt(newRowData.year, 10),
+      month: parseInt(newRowData.month, 10),
+      day: parseInt(newRowData.day, 10),
+    };
+
+    if (!newRow.account_id) {
+      newErrors.account_id = "Account ID is required.";
+    }
+
+    if (isNaN(newRow.district_id)) {
+      newErrors.district_id = "District ID must be a valid number.";
+    }
+
+    if (isNaN(newRow.year)) {
+      newErrors.year = "Year must be a valid number.";
+    }
+
+    if (isNaN(newRow.month)) {
+      newErrors.month = "Month must be a valid number.";
+    }
+
+    if (isNaN(newRow.day)) {
+      newErrors.day = "Day must be a valid number.";
+    }
+
+    if (Object.values(newErrors).some((error) => error !== "")) {
+      setErrors(newErrors);
+      return;
+    }
+
     setDialogOpen(false);
+
     axios
-      .post("http://localhost:5000/insert/completedacct", newRowData)
+      .post("http://localhost:5000/insert/completedacct", newRow)
       .then((response) => {
         console.log("New row added successfully:", response.data);
-        setData((prevData) => [...prevData, newRowData]);
+        axios
+          .get("http://localhost:5000/api/data/get_completedacct")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error adding new row:", error);
       });
+
     setNewRowData({
+      account_id: "",
+      district_id: "",
+      frequency: "",
+      parseddate: "",
+      year: "",
+      month: "",
+      day: "",
+    });
+    setErrors({
       account_id: "",
       district_id: "",
       frequency: "",
@@ -110,7 +248,7 @@ const Accounts = () => {
       field: "account_id",
       headerName: "Account ID",
       flex: 0.5,
-      editable: true,
+      editable: false,
     },
     {
       field: "district_id",
@@ -175,6 +313,20 @@ const Accounts = () => {
         <Button onClick={handleAddRow} variant="outlined" color="secondary">
           Add Row
         </Button>
+        {editErrors.account_id && (
+          <div style={{ color: "red" }}>{editErrors.account_id}</div>
+        )}
+        {editErrors.district_id && (
+          <div style={{ color: "red" }}>{editErrors.district_id}</div>
+        )}
+        {editErrors.year && (
+          <div style={{ color: "red" }}>{editErrors.year}</div>
+        )}
+        {editErrors.month && (
+          <div style={{ color: "red" }}>{editErrors.month}</div>
+        )}
+        {editErrors.day && <div style={{ color: "red" }}>{editErrors.day}</div>}
+
         <DataGrid
           rows={data}
           columns={columns}
@@ -194,6 +346,8 @@ const Accounts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.account_id}
+            helperText={errors.account_id}
           />
           <TextField
             label="District ID"
@@ -202,6 +356,8 @@ const Accounts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.district_id}
+            helperText={errors.district_id}
           />
           <TextField
             label="Frequency"
@@ -210,6 +366,8 @@ const Accounts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.frequency}
+            helperText={errors.frequency}
           />
           <TextField
             label="Parsed Date"
@@ -218,6 +376,8 @@ const Accounts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.parseddate}
+            helperText={errors.parseddate}
           />
           <TextField
             label="Year"
@@ -226,6 +386,8 @@ const Accounts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.year}
+            helperText={errors.year}
           />
           <TextField
             label="Month"
@@ -234,6 +396,8 @@ const Accounts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.month}
+            helperText={errors.month}
           />
           <TextField
             label="Day"
@@ -242,6 +406,8 @@ const Accounts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.day}
+            helperText={errors.day}
           />
         </DialogContent>
         <DialogActions>

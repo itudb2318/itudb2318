@@ -34,8 +34,29 @@ const Clients = () => {
     last: "",
     phone: "",
     email: "",
-    address1: "",
-    address2: "",
+    address_1: "",
+    address_2: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    district_id: "",
+  });
+  const [errors, setErrors] = useState({
+    client_id: "",
+    sex: "",
+    fulldate: "",
+    day: "",
+    month: "",
+    year: "",
+    age: "",
+    social: "",
+    first: "",
+    middle: "",
+    last: "",
+    phone: "",
+    email: "",
+    address_1: "",
+    address_2: "",
     city: "",
     state: "",
     zipcode: "",
@@ -43,7 +64,6 @@ const Clients = () => {
   });
 
   useEffect(() => {
-    // Make a request to the Flask backend
     axios
       .get("http://localhost:5000/api/data/get_completedclient")
       .then((response) => {
@@ -55,6 +75,63 @@ const Clients = () => {
   }, []);
 
   const handleEditCellChange = (newRow, oldRow) => {
+    const newErrors = {
+      client_id: "",
+      sex: "",
+      fulldate: "",
+      day: "",
+      month: "",
+      year: "",
+      age: "",
+      social: "",
+      first: "",
+      middle: "",
+      last: "",
+      phone: "",
+      email: "",
+      address_1: "",
+      address_2: "",
+      city: "",
+      state: "",
+      zipcode: "",
+      district_id: "",
+    };
+
+    if (!newRow.client_id) {
+      newErrors.client_id = "Client ID is required.";
+    }
+
+    if (isNaN(newRow.day)) {
+      newErrors.day = "Day must be a valid number.";
+    }
+
+    if (isNaN(newRow.month)) {
+      newErrors.month = "Month must be a valid number.";
+    }
+
+    if (isNaN(newRow.year)) {
+      newErrors.year = "Year must be a valid number.";
+    }
+
+    if (isNaN(newRow.age)) {
+      newErrors.age = "Age must be a valid number.";
+    }
+
+    if (isNaN(newRow.zipcode)) {
+      newErrors.zipcode = "Zipcode must be a valid number.";
+    }
+
+    if (isNaN(newRow.district_id)) {
+      newErrors.district_id = "District ID must be a valid number.";
+    }
+
+    if (Object.values(newErrors).some((error) => error !== "")) {
+      setErrors(newErrors);
+      return oldRow;
+    }
+
+    setErrors({});
+
     axios
       .put(
         `http://localhost:5000/update/completedclient/${newRow.client_id}`,
@@ -62,6 +139,14 @@ const Clients = () => {
       )
       .then((response) => {
         console.log("Data updated successfully:", response.data);
+        axios
+          .get("http://localhost:5000/api/data/get_completedclient")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.log("Error updating data:", error);
@@ -76,8 +161,14 @@ const Clients = () => {
       .then((response) => {
         console.log("Row deleted successfully:", response.data);
 
-        const updatedData = data.filter((row) => row.client_id !== client_id);
-        setData(updatedData);
+        axios
+          .get("http://localhost:5000/api/data/get_completedclient")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error deleting row:", error);
@@ -90,15 +181,101 @@ const Clients = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
+    setErrors({
+      client_id: "",
+      sex: "",
+      fulldate: "",
+      day: "",
+      month: "",
+      year: "",
+      age: "",
+      social: "",
+      first: "",
+      middle: "",
+      last: "",
+      phone: "",
+      email: "",
+      address_1: "",
+      address_2: "",
+      city: "",
+      state: "",
+      zipcode: "",
+      district_id: "",
+    });
   };
 
   const handleSaveNewRow = () => {
+    const newErrors = {
+      client_id: "",
+      sex: "",
+      fulldate: "",
+      day: "",
+      month: "",
+      year: "",
+      age: "",
+      social: "",
+      first: "",
+      middle: "",
+      last: "",
+      phone: "",
+      email: "",
+      address_1: "",
+      address_2: "",
+      city: "",
+      state: "",
+      zipcode: "",
+      district_id: "",
+    };
+
+    if (!newRowData.client_id) {
+      newErrors.client_id = "Client ID is required.";
+    }
+
+    if (isNaN(newRowData.day)) {
+      newErrors.day = "Day must be a valid number.";
+    }
+
+    if (isNaN(newRowData.month)) {
+      newErrors.month = "Month must be a valid number.";
+    }
+
+    if (isNaN(newRowData.year)) {
+      newErrors.year = "Year must be a valid number.";
+    }
+
+    if (isNaN(newRowData.age)) {
+      newErrors.age = "Age must be a valid number.";
+    }
+
+    if (isNaN(newRowData.zipcode)) {
+      newErrors.zipcode = "Zipcode must be a valid number.";
+    }
+
+    if (isNaN(newRowData.district_id)) {
+      newErrors.district_id = "District ID must be a valid number.";
+    }
+
+    if (
+      Object.values(newErrors).some((error) => error !== "") ||
+      Object.values(newErrors).some((error) => error !== "")
+    ) {
+      setErrors(newErrors);
+      return;
+    }
+
     setDialogOpen(false);
     axios
       .post("http://localhost:5000/insert/completedclient", newRowData)
       .then((response) => {
         console.log("New row added successfully:", response.data);
-        setData((prevData) => [...prevData, newRowData]);
+        axios
+          .get("http://localhost:5000/api/data/get_completedclient")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error adding new row:", error);
@@ -117,8 +294,29 @@ const Clients = () => {
       last: "",
       phone: "",
       email: "",
-      address1: "",
-      address2: "",
+      address_1: "",
+      address_2: "",
+      city: "",
+      state: "",
+      zipcode: "",
+      district_id: "",
+    });
+    setErrors({
+      client_id: "",
+      sex: "",
+      fulldate: "",
+      day: "",
+      month: "",
+      year: "",
+      age: "",
+      social: "",
+      first: "",
+      middle: "",
+      last: "",
+      phone: "",
+      email: "",
+      address_1: "",
+      address_2: "",
       city: "",
       state: "",
       zipcode: "",
@@ -132,7 +330,7 @@ const Clients = () => {
   };
 
   const columns = [
-    { field: "client_id", headerName: "Client ID", flex: 0.5, editable: true },
+    { field: "client_id", headerName: "Client ID", flex: 0.5, editable: false },
     { field: "sex", headerName: "Sex", flex: 1, editable: true },
     { field: "fulldate", headerName: "Full Date", flex: 1, editable: true },
     { field: "month", headerName: "Month", flex: 1, editable: true },
@@ -205,6 +403,17 @@ const Clients = () => {
           },
         }}
       >
+        {errors.client_id && (
+          <div style={{ color: "red" }}>{errors.client_id}</div>
+        )}
+        {errors.day && <div style={{ color: "red" }}>{errors.day}</div>}
+        {errors.month && <div style={{ color: "red" }}>{errors.month}</div>}
+        {errors.year && <div style={{ color: "red" }}>{errors.year}</div>}
+        {errors.age && <div style={{ color: "red" }}>{errors.age}</div>}
+        {errors.zipcode && <div style={{ color: "red" }}>{errors.zipcode}</div>}
+        {errors.district_id && (
+          <div style={{ color: "red" }}>{errors.district_id}</div>
+        )}
         <Button onClick={handleAddRow} variant="outlined" color="secondary">
           Add Row
         </Button>
@@ -227,6 +436,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.client_id}
+            helperText={errors.client_id}
           />
           <TextField
             label="Sex"
@@ -235,6 +446,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.sex}
+            helperText={errors.sex}
           />
           <TextField
             label="Full Date"
@@ -243,6 +456,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.fulldate}
+            helperText={errors.fulldate}
           />
           <TextField
             label="Day"
@@ -251,6 +466,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.day}
+            helperText={errors.day}
           />
           <TextField
             label="Month"
@@ -259,6 +476,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.month}
+            helperText={errors.month}
           />
           <TextField
             label="Year"
@@ -267,6 +486,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.year}
+            helperText={errors.year}
           />
           <TextField
             label="Age"
@@ -275,6 +496,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.age}
+            helperText={errors.age}
           />
           <TextField
             label="Social"
@@ -283,6 +506,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.social}
+            helperText={errors.social}
           />
           <TextField
             label="First"
@@ -291,6 +516,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.first}
+            helperText={errors.first}
           />
           <TextField
             label="Middle"
@@ -299,6 +526,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.middle}
+            helperText={errors.middle}
           />
           <TextField
             label="Last"
@@ -307,6 +536,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.last}
+            helperText={errors.last}
           />
           <TextField
             label="Phone"
@@ -315,6 +546,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.phone}
+            helperText={errors.phone}
           />
           <TextField
             label="Email"
@@ -323,22 +556,28 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.email}
+            helperText={errors.email}
           />
           <TextField
             label="Address 1"
-            name="address1"
-            value={newRowData.address1}
+            name="address_1"
+            value={newRowData.address_1}
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.address_1}
+            helperText={errors.address_1}
           />
           <TextField
             label="Address 2"
-            name="address2"
-            value={newRowData.address2}
+            name="address_2"
+            value={newRowData.address_2}
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.address_2}
+            helperText={errors.address_2}
           />
           <TextField
             label="City"
@@ -347,6 +586,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.city}
+            helperText={errors.city}
           />
           <TextField
             label="State"
@@ -355,6 +596,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.state}
+            helperText={errors.state}
           />
           <TextField
             label="Zipcode"
@@ -363,6 +606,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.zipcode}
+            helperText={errors.zipcode}
           />
           <TextField
             label="District ID"
@@ -371,6 +616,8 @@ const Clients = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.district_id}
+            helperText={errors.district_id}
           />
         </DialogContent>
         <DialogActions>

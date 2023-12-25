@@ -34,6 +34,20 @@ const Loans = () => {
     location: "",
     purpose: "",
   });
+  const [errors, setErrors] = useState({
+    loan_id: "",
+    account_id: "",
+    amount: "",
+    duration: "",
+    payments: "",
+    status: "",
+    year: "",
+    month: "",
+    day: "",
+    fulldate: "",
+    location: "",
+    purpose: "",
+  });
 
   useEffect(() => {
     axios
@@ -47,6 +61,50 @@ const Loans = () => {
   }, []);
 
   const handleEditCellChange = (newRow, oldRow) => {
+    const newErrors = {
+      loan_id: "",
+      account_id: "",
+      amount: "",
+      duration: "",
+      payments: "",
+      status: "",
+      year: "",
+      month: "",
+      day: "",
+      fulldate: "",
+      location: "",
+      purpose: "",
+    };
+
+    if (isNaN(Number(newRow.amount))) {
+      newErrors.amount = "Amount must be a valid number.";
+    }
+    if (isNaN(Number(newRow.duration))) {
+      newErrors.duration = "Duration must be a valid number.";
+    }
+    if (isNaN(Number(newRow.payments))) {
+      newErrors.payments = "Payments must be a valid number.";
+    }
+    if (isNaN(Number(newRow.year))) {
+      newErrors.year = "Year must be a valid number.";
+    }
+    if (isNaN(Number(newRow.month))) {
+      newErrors.month = "Month must be a valid number.";
+    }
+    if (isNaN(Number(newRow.day))) {
+      newErrors.day = "Day must be a valid number.";
+    }
+    if (isNaN(Number(newRow.location))) {
+      newErrors.location = "Location must be a valid number.";
+    }
+
+    if (Object.values(newErrors).some((error) => error !== "")) {
+      setErrors(newErrors);
+      return oldRow;
+    }
+
+    setErrors({});
+
     axios
       .put(
         `http://localhost:5000/update/completedloan/${newRow.loan_id}`,
@@ -54,6 +112,14 @@ const Loans = () => {
       )
       .then((response) => {
         console.log("Data updated successfully:", response.data);
+        axios
+          .get("http://localhost:5000/api/data/get_completedloan")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.log("Error updating data:", error);
@@ -68,8 +134,14 @@ const Loans = () => {
       .then((response) => {
         console.log("Row deleted successfully:", response.data);
 
-        const updatedData = data.filter((row) => row.loan_id !== loan_id);
-        setData(updatedData);
+        axios
+          .get("http://localhost:5000/api/data/get_completedloan")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error deleting row:", error);
@@ -82,19 +154,46 @@ const Loans = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
+    setErrors({
+      loan_id: "",
+      account_id: "",
+      amount: "",
+      duration: "",
+      payments: "",
+      status: "",
+      year: "",
+      month: "",
+      day: "",
+      fulldate: "",
+      location: "",
+      purpose: "",
+    });
   };
 
   const handleSaveNewRow = () => {
+    const isValid = validateForm();
+    if (!isValid) {
+      return;
+    }
+
     setDialogOpen(false);
     axios
       .post("http://localhost:5000/insert/completedloan", newRowData)
       .then((response) => {
         console.log("New row added successfully:", response.data);
-        setData((prevData) => [...prevData, newRowData]);
+        axios
+          .get("http://localhost:5000/api/data/get_completedloan")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error adding new row:", error);
       });
+
     setNewRowData({
       loan_id: "",
       account_id: "",
@@ -114,10 +213,40 @@ const Loans = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewRowData((prevData) => ({ ...prevData, [name]: value }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { ...errors };
+
+    const numericFields = [
+      "amount",
+      "duration",
+      "payments",
+      "year",
+      "month",
+      "day",
+      "location",
+    ];
+    numericFields.forEach((field) => {
+      if (isNaN(Number(newRowData[field]))) {
+        newErrors[field] = `${field} must be a numeric value`;
+        valid = false;
+      }
+    });
+
+    if (!newRowData.loan_id.trim()) {
+      newErrors.loan_id = "Loan ID is required";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
   };
 
   const columns = [
-    { field: "loan_id", headerName: "Loan ID", flex: 0.5, editable: true },
+    { field: "loan_id", headerName: "Loan ID", flex: 0.5, editable: false },
     { field: "account_id", headerName: "Account ID", flex: 1, editable: true },
     { field: "amount", headerName: "Amount", flex: 1, editable: true },
     { field: "duration", headerName: "Duration", flex: 1, editable: true },
@@ -178,6 +307,19 @@ const Loans = () => {
           },
         }}
       >
+        {errors.amount && <div style={{ color: "red" }}>{errors.amount}</div>}
+        {errors.duration && (
+          <div style={{ color: "red" }}>{errors.duration}</div>
+        )}
+        {errors.payments && (
+          <div style={{ color: "red" }}>{errors.payments}</div>
+        )}
+        {errors.year && <div style={{ color: "red" }}>{errors.year}</div>}
+        {errors.month && <div style={{ color: "red" }}>{errors.month}</div>}
+        {errors.day && <div style={{ color: "red" }}>{errors.day}</div>}
+        {errors.location && (
+          <div style={{ color: "red" }}>{errors.location}</div>
+        )}
         <Button onClick={handleAddRow} variant="outlined" color="secondary">
           Add Row
         </Button>
@@ -200,6 +342,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.loan_id}
+            helperText={errors.loan_id}
           />
           <TextField
             label="Account ID"
@@ -208,6 +352,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.account_id}
+            helperText={errors.account_id}
           />
           <TextField
             label="Amount"
@@ -216,6 +362,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.amount}
+            helperText={errors.amount}
           />
           <TextField
             label="Duration"
@@ -224,6 +372,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.duration}
+            helperText={errors.duration}
           />
           <TextField
             label="Payments"
@@ -232,6 +382,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.payments}
+            helperText={errors.payments}
           />
           <TextField
             label="Status"
@@ -240,6 +392,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.status}
+            helperText={errors.status}
           />
           <TextField
             label="Year"
@@ -248,6 +402,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.year}
+            helperText={errors.year}
           />
           <TextField
             label="Month"
@@ -256,6 +412,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.month}
+            helperText={errors.month}
           />
           <TextField
             label="Day"
@@ -264,6 +422,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.day}
+            helperText={errors.day}
           />
           <TextField
             label="Full Date"
@@ -272,6 +432,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.fulldate}
+            helperText={errors.fulldate}
           />
           <TextField
             label="Location"
@@ -280,6 +442,8 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.location}
+            helperText={errors.location}
           />
           <TextField
             label="Purpose"
@@ -288,15 +452,15 @@ const Loans = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.purpose}
+            helperText={errors.purpose}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button
-            onClick={handleSaveNewRow}
-            variant="contained"
-            color="primary"
-          >
+          <Button onClick={handleDialogClose} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSaveNewRow} color="primary">
             Save
           </Button>
         </DialogActions>

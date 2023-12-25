@@ -30,8 +30,17 @@ const Cards = () => {
     fulldate: "",
   });
 
+  const [errors, setErrors] = useState({
+    card_id: "",
+    disp_id: "",
+    type: "",
+    year: "",
+    month: "",
+    day: "",
+    fulldate: "",
+  });
+
   useEffect(() => {
-    // Make a request to the Flask backend
     axios
       .get("http://localhost:5000/api/data/get_completedcard")
       .then((response) => {
@@ -43,6 +52,39 @@ const Cards = () => {
   }, []);
 
   const handleEditCellChange = (newRow, oldRow) => {
+    const newErrors = {
+      card_id: "",
+      disp_id: "",
+      type: "",
+      year: "",
+      month: "",
+      day: "",
+      fulldate: "",
+    };
+
+    if (!newRow.card_id) {
+      newErrors.card_id = "Card ID is required.";
+    }
+
+    if (isNaN(newRow.year)) {
+      newErrors.year = "Year must be a valid number.";
+    }
+
+    if (isNaN(newRow.month)) {
+      newErrors.month = "Month must be a valid number.";
+    }
+
+    if (isNaN(newRow.day)) {
+      newErrors.day = "Day must be a valid number.";
+    }
+
+    if (Object.values(newErrors).some((error) => error !== "")) {
+      setErrors(newErrors);
+      return oldRow;
+    }
+
+    setErrors({});
+
     axios
       .put(
         `http://localhost:5000/update/completedcard/${newRow.card_id}`,
@@ -50,6 +92,14 @@ const Cards = () => {
       )
       .then((response) => {
         console.log("Data updated successfully:", response.data);
+        axios
+          .get("http://localhost:5000/api/data/get_completedcard")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.log("Error updating data:", error);
@@ -64,8 +114,14 @@ const Cards = () => {
       .then((response) => {
         console.log("Row deleted successfully:", response.data);
 
-        const updatedData = data.filter((row) => row.card_id !== card_id);
-        setData(updatedData);
+        axios
+          .get("http://localhost:5000/api/data/get_completedcard")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error deleting row:", error);
@@ -78,20 +134,79 @@ const Cards = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
+    setErrors({
+      card_id: "",
+      disp_id: "",
+      type: "",
+      year: "",
+      month: "",
+      day: "",
+      fulldate: "",
+    });
   };
 
   const handleSaveNewRow = () => {
+    const newErrors = {
+      card_id: "",
+      disp_id: "",
+      type: "",
+      year: "",
+      month: "",
+      day: "",
+      fulldate: "",
+    };
+
+    if (!newRowData.card_id) {
+      newErrors.card_id = "Card ID is required.";
+    }
+
+    if (isNaN(newRowData.year)) {
+      newErrors.year = "Year must be a valid number.";
+    }
+
+    if (isNaN(newRowData.month)) {
+      newErrors.month = "Month must be a valid number.";
+    }
+
+    if (isNaN(newRowData.day)) {
+      newErrors.day = "Day must be a valid number.";
+    }
+
+    if (
+      Object.values(newErrors).some((error) => error !== "") ||
+      Object.values(newErrors).some((error) => error !== "")
+    ) {
+      setErrors(newErrors);
+      return;
+    }
+
     setDialogOpen(false);
     axios
       .post("http://localhost:5000/insert/completedcard", newRowData)
       .then((response) => {
         console.log("New row added successfully:", response.data);
-        setData((prevData) => [...prevData, newRowData]);
+        axios
+          .get("http://localhost:5000/api/data/get_completedcard")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error adding new row:", error);
       });
     setNewRowData({
+      card_id: "",
+      disp_id: "",
+      type: "",
+      year: "",
+      month: "",
+      day: "",
+      fulldate: "",
+    });
+    setErrors({
       card_id: "",
       disp_id: "",
       type: "",
@@ -108,7 +223,7 @@ const Cards = () => {
   };
 
   const columns = [
-    { field: "card_id", headerName: "Card ID", flex: 0.5, editable: true },
+    { field: "card_id", headerName: "Card ID", flex: 0.5, editable: false },
     { field: "disp_id", headerName: "Disposition ID", flex: 1, editable: true },
     { field: "type", headerName: "Type", flex: 1, editable: true },
     { field: "year", headerName: "Year", flex: 1, editable: true },
@@ -167,6 +282,10 @@ const Cards = () => {
         <Button onClick={handleAddRow} variant="outlined" color="secondary">
           Add Row
         </Button>
+        {errors.card_id && <div style={{ color: "red" }}>{errors.card_id}</div>}
+        {errors.year && <div style={{ color: "red" }}>{errors.year}</div>}
+        {errors.month && <div style={{ color: "red" }}>{errors.month}</div>}
+        {errors.day && <div style={{ color: "red" }}>{errors.day}</div>}
         <DataGrid
           rows={data}
           columns={columns}
@@ -186,6 +305,8 @@ const Cards = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.card_id}
+            helperText={errors.card_id}
           />
           <TextField
             label="Disposition ID"
@@ -194,6 +315,8 @@ const Cards = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.disp_id}
+            helperText={errors.disp_id}
           />
           <TextField
             label="Type"
@@ -202,6 +325,8 @@ const Cards = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.type}
+            helperText={errors.type}
           />
           <TextField
             label="Year"
@@ -210,6 +335,8 @@ const Cards = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.year}
+            helperText={errors.year}
           />
           <TextField
             label="Month"
@@ -218,6 +345,8 @@ const Cards = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.month}
+            helperText={errors.month}
           />
           <TextField
             label="Day"
@@ -226,6 +355,8 @@ const Cards = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.day}
+            helperText={errors.day}
           />
           <TextField
             label="Full Date"
@@ -234,6 +365,8 @@ const Cards = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.fulldate}
+            helperText={errors.fulldate}
           />
         </DialogContent>
         <DialogActions>

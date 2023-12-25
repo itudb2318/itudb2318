@@ -28,9 +28,16 @@ const Districts = () => {
     region: "",
     division: "",
   });
+  const [errors, setErrors] = useState({
+    district_id: "",
+    city: "",
+    state_name: "",
+    state_abbrev: "",
+    region: "",
+    division: "",
+  });
 
   useEffect(() => {
-    // Make a request to the Flask backend
     axios
       .get("http://localhost:5000/api/data/get_completeddistrict")
       .then((response) => {
@@ -42,6 +49,30 @@ const Districts = () => {
   }, []);
 
   const handleEditCellChange = (newRow, oldRow) => {
+    const newErrors = {
+      district_id: "",
+      city: "",
+      state_name: "",
+      state_abbrev: "",
+      region: "",
+      division: "",
+    };
+
+    if (!newRow.district_id) {
+      newErrors.district_id = "District ID is required.";
+    }
+
+    if (!Number.isInteger(Number(newRow.district_id))) {
+      newErrors.district_id = "District ID must be an integer";
+    }
+
+    if (Object.values(newErrors).some((error) => error !== "")) {
+      setErrors(newErrors);
+      return oldRow;
+    }
+
+    setErrors({});
+
     axios
       .put(
         `http://localhost:5000/update/completeddistrict/${newRow.district_id}`,
@@ -49,6 +80,14 @@ const Districts = () => {
       )
       .then((response) => {
         console.log("Data updated successfully:", response.data);
+        axios
+          .get("http://localhost:5000/api/data/get_completeddistrict")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.log("Error updating data:", error);
@@ -63,10 +102,14 @@ const Districts = () => {
       .then((response) => {
         console.log("Row deleted successfully:", response.data);
 
-        const updatedData = data.filter(
-          (row) => row.district_id !== district_id
-        );
-        setData(updatedData);
+        axios
+          .get("http://localhost:5000/api/data/get_completeddistrict")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error deleting row:", error);
@@ -79,19 +122,40 @@ const Districts = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
+    setErrors({
+      district_id: "",
+      city: "",
+      state_name: "",
+      state_abbrev: "",
+      region: "",
+      division: "",
+    });
   };
 
   const handleSaveNewRow = () => {
+    const isValid = validateForm();
+    if (!isValid) {
+      return;
+    }
+
     setDialogOpen(false);
     axios
       .post("http://localhost:5000/insert/completeddistrict", newRowData)
       .then((response) => {
         console.log("New row added successfully:", response.data);
-        setData((prevData) => [...prevData, newRowData]);
+        axios
+          .get("http://localhost:5000/api/data/get_completeddistrict")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error adding new row:", error);
       });
+
     setNewRowData({
       district_id: "",
       city: "",
@@ -105,6 +169,25 @@ const Districts = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewRowData((prevData) => ({ ...prevData, [name]: value }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { ...errors };
+
+    if (!newRowData.district_id.trim()) {
+      newErrors.district_id = "District ID is required";
+      valid = false;
+    }
+
+    if (!Number.isInteger(Number(newRowData.district_id))) {
+      newErrors.district_id = "District ID must be an integer";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
   };
 
   const columns = [
@@ -112,7 +195,7 @@ const Districts = () => {
       field: "district_id",
       headerName: "District ID",
       flex: 0.5,
-      editable: true,
+      editable: false,
     },
     { field: "city", headerName: "City", flex: 1, editable: true },
     { field: "state_name", headerName: "State Name", flex: 1, editable: true },
@@ -176,6 +259,9 @@ const Districts = () => {
         <Button onClick={handleAddRow} variant="outlined" color="secondary">
           Add Row
         </Button>
+        {errors.district_id && (
+          <div style={{ color: "red" }}>{errors.district_id}</div>
+        )}
         <DataGrid
           rows={data}
           columns={columns}
@@ -195,6 +281,8 @@ const Districts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.district_id}
+            helperText={errors.district_id}
           />
           <TextField
             label="City"
@@ -203,6 +291,8 @@ const Districts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.city}
+            helperText={errors.city}
           />
           <TextField
             label="State Name"
@@ -211,6 +301,8 @@ const Districts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.state_name}
+            helperText={errors.state_name}
           />
           <TextField
             label="State Abbreviation"
@@ -219,6 +311,8 @@ const Districts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.state_abbrev}
+            helperText={errors.state_abbrev}
           />
           <TextField
             label="Region"
@@ -227,6 +321,8 @@ const Districts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.region}
+            helperText={errors.region}
           />
           <TextField
             label="Division"
@@ -235,6 +331,8 @@ const Districts = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.division}
+            helperText={errors.division}
           />
         </DialogContent>
         <DialogActions>

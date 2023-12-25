@@ -21,7 +21,24 @@ const Crms = () => {
   const [data, setData] = useState([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [newRowData, setNewRowData] = useState({
-    id: "",
+    date_received: "",
+    product: "",
+    sub_product: "",
+    issue: "",
+    sub_issue: "",
+    consumer_complaint_narrative: "",
+    tags: "",
+    consumer_consent_provided: "",
+    submitted_via: "",
+    date_sent_to_company: "",
+    company_response_to_consumer: "",
+    timely_response: "",
+    consumer_disputed: "",
+    complaint_id: "",
+    client_id: "",
+  });
+
+  const [errors, setErrors] = useState({
     date_received: "",
     product: "",
     sub_product: "",
@@ -40,7 +57,6 @@ const Crms = () => {
   });
 
   useEffect(() => {
-    // Make a request to the Flask backend
     axios
       .get("http://localhost:5000/api/data/get_crm_events")
       .then((response) => {
@@ -56,6 +72,14 @@ const Crms = () => {
       .put(`http://localhost:5000/update/crm_events/${newRow.id}`, newRow)
       .then((response) => {
         console.log("Data updated successfully:", response.data);
+        axios
+          .get("http://localhost:5000/api/data/get_crm_events")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.log("Error updating data:", error);
@@ -70,8 +94,14 @@ const Crms = () => {
       .then((response) => {
         console.log("Row deleted successfully:", response.data);
 
-        const updatedData = data.filter((row) => row.id !== id);
-        setData(updatedData);
+        axios
+          .get("http://localhost:5000/api/data/get_crm_events")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error deleting row:", error);
@@ -84,21 +114,84 @@ const Crms = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
+    setErrors({
+      date_received: "",
+      product: "",
+      sub_product: "",
+      issue: "",
+      sub_issue: "",
+      consumer_complaint_narrative: "",
+      tags: "",
+      consumer_consent_provided: "",
+      submitted_via: "",
+      date_sent_to_company: "",
+      company_response_to_consumer: "",
+      timely_response: "",
+      consumer_disputed: "",
+      complaint_id: "",
+      client_id: "",
+    });
   };
 
   const handleSaveNewRow = () => {
+    const newErrors = {
+      date_received: "",
+      product: "",
+      sub_product: "",
+      issue: "",
+      sub_issue: "",
+      consumer_complaint_narrative: "",
+      tags: "",
+      consumer_consent_provided: "",
+      submitted_via: "",
+      date_sent_to_company: "",
+      company_response_to_consumer: "",
+      timely_response: "",
+      consumer_disputed: "",
+      complaint_id: "",
+      client_id: "",
+    };
+
+    if (Object.values(newErrors).some((error) => error !== "")) {
+      setErrors(newErrors);
+      return;
+    }
+
     setDialogOpen(false);
     axios
       .post("http://localhost:5000/insert/crm_events", newRowData)
       .then((response) => {
         console.log("New row added successfully:", response.data);
-        setData((prevData) => [...prevData, newRowData]);
+        axios
+          .get("http://localhost:5000/api/data/get_crm_events")
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       })
       .catch((error) => {
         console.error("Error adding new row:", error);
       });
     setNewRowData({
-      id: "",
+      date_received: "",
+      product: "",
+      sub_product: "",
+      issue: "",
+      sub_issue: "",
+      consumer_complaint_narrative: "",
+      tags: "",
+      consumer_consent_provided: "",
+      submitted_via: "",
+      date_sent_to_company: "",
+      company_response_to_consumer: "",
+      timely_response: "",
+      consumer_disputed: "",
+      complaint_id: "",
+      client_id: "",
+    });
+    setErrors({
       date_received: "",
       product: "",
       sub_product: "",
@@ -123,7 +216,7 @@ const Crms = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "ID", flex: 1, editable: true },
+    { field: "id", headerName: "ID", flex: 1, editable: false },
     {
       field: "date_received",
       headerName: "Date Recevied",
@@ -224,7 +317,7 @@ const Crms = () => {
           },
           "& .MuiDataGrid-columnHeaders": {
             backgroundColor: colors.blueAccent[700],
-            borderbottom: "none",
+            borderBottom: "none",
           },
           "& .MuiDataGrid-virtualScroller": {
             backgroundColor: colors.primary[400],
@@ -254,20 +347,14 @@ const Crms = () => {
         <DialogTitle>Add New Row</DialogTitle>
         <DialogContent>
           <TextField
-            label="ID"
-            name="id"
-            value={newRowData.id}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
             label="Date Received"
             name="date_received"
             value={newRowData.date_received}
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.date_received}
+            helperText={errors.date_received}
           />
           <TextField
             label="Product"
@@ -276,6 +363,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.product}
+            helperText={errors.product}
           />
           <TextField
             label="Sub Product"
@@ -284,6 +373,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.sub_product}
+            helperText={errors.sub_product}
           />
           <TextField
             label="Issue"
@@ -292,6 +383,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.issue}
+            helperText={errors.issue}
           />
           <TextField
             label="Sub Issue"
@@ -300,6 +393,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.sub_issue}
+            helperText={errors.sub_issue}
           />
           <TextField
             label="Consumer Complaint Narrative"
@@ -310,6 +405,8 @@ const Crms = () => {
             rows={4}
             fullWidth
             margin="normal"
+            error={!!errors.consumer_complaint_narrative}
+            helperText={errors.consumer_complaint_narrative}
           />
           <TextField
             label="Tags"
@@ -318,6 +415,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.tags}
+            helperText={errors.tags}
           />
           <TextField
             label="Consumer Consent Provided"
@@ -326,6 +425,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.consumer_consent_provided}
+            helperText={errors.consumer_consent_provided}
           />
           <TextField
             label="Submitted Via"
@@ -334,6 +435,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.submitted_via}
+            helperText={errors.submitted_via}
           />
           <TextField
             label="Date Sent To Company"
@@ -342,6 +445,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.date_sent_to_company}
+            helperText={errors.date_sent_to_company}
           />
           <TextField
             label="Company Response To Consumer"
@@ -350,6 +455,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.company_response_to_consumer}
+            helperText={errors.company_response_to_consumer}
           />
           <TextField
             label="Timely Response"
@@ -358,6 +465,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.timely_response}
+            helperText={errors.timely_response}
           />
           <TextField
             label="Consumer Disputed"
@@ -366,6 +475,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.consumer_disputed}
+            helperText={errors.consumer_disputed}
           />
           <TextField
             label="Complaint ID"
@@ -374,6 +485,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.complaint_id}
+            helperText={errors.complaint_id}
           />
           <TextField
             label="Client ID"
@@ -382,6 +495,8 @@ const Crms = () => {
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            error={!!errors.client_id}
+            helperText={errors.client_id}
           />
         </DialogContent>
         <DialogActions>
