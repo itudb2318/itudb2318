@@ -51,7 +51,8 @@ def update_data(table_name, item_id, data, db_config):
     try:
         cursor.execute(query, update_values + (str(item_id),))
     except Exception as e:
-        print(e)
+        msg = str(e)
+        return msg
 
     connection.commit()
     

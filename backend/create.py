@@ -13,7 +13,8 @@ def insert_data(table_name, data, db_config):
     try:
         cursor.execute(query, tuple(data.values()))
     except Exception as e:
-        print(e)
+        msg = str(e)
+        return msg
 
     connection.commit()
 

@@ -31,7 +31,8 @@ def delete_item(table_name, item_id, db_config):
     try:
         cursor.execute(query, values)
     except Exception as e:
-        print(e)
+        msg = str(e)
+        return msg
     
     # Commit the changes and close the cursor and connection
     connection.commit()

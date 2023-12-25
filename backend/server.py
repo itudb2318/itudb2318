@@ -11,7 +11,7 @@ CORS(app)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '1234',
+    'password': 'ertekin.12',
     'database': 'banking'
 }
 
@@ -51,19 +51,23 @@ def get_crm_events():
 @app.route('/delete/<string:table_name>/<item_id>', methods=['DELETE'])
 def delete(table_name, item_id):
     msg = delete_item(table_name, item_id, db_config)
-    return msg
+    print(msg)
+    return jsonify({'message': msg})
 
 @app.route('/update/<string:table_name>/<item_id>', methods=['PUT'])
 def update(table_name, item_id):
     data = request.get_json()
     msg = update_data(table_name, item_id, data, db_config)
-    return msg
+    print(msg)
+    return jsonify({'message': msg})
     
 @app.route('/insert/<string:table_name>', methods=['POST'])
 def insert(table_name):
     data = request.get_json()
     msg = insert_data(table_name, data, db_config)
-    return msg
+    print(msg)
+    return jsonify({'message': msg})
+
 
 
 def get_data_from_table(table_name):
